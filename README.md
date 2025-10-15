@@ -39,6 +39,7 @@ CREATE TABLE zepto(
     quantity INTEGER
 );
 ```
+
 ## Data Exploration
 ```sql
 -- Count of rows
@@ -67,4 +68,25 @@ GROUP BY name
 HAVING COUNT(sku_id) > 1
 ORDER BY COUNT(sku_id) DESC;
 ```
+
+## Data Cleaning
+```sql
+-- Delete products with MRP = 0
+DELETE FROM zepto WHERE mrp = 0;
+
+-- Convert prices from paise to rupees
+UPDATE zepto
+SET mrp = mrp / 100.0,
+    discountedsellingprice = discountedsellingprice / 100.0;
+```
+
+## Business Insight Queries
+### 1. Top 10 Best-Value Products (Highest Discounts)
+``` sql
+SELECT DISTINCT name, mrp, discountpercent
+FROM zepto 
+ORDER BY discountpercent DESC
+LIMIT 10;
+```
+**Helps customers find bargains and businesses understand which products are heavily promoted.**
 
