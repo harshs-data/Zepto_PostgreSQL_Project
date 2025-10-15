@@ -1,6 +1,40 @@
-Zepto Dataset Analysis Using PostgreSQL
-Project Overview
+# Zepto Data Analysis Project
 
-This project performs a comprehensive data analysis on a dataset of Zepto products using PostgreSQL. The analysis includes data cleaning, exploration, and business insights, such as best-value products, stock status, revenue estimation, discount analysis, and inventory planning.
+## Project Overview
+This project involves performing data analysis on a sample Zepto e-commerce dataset using **PostgreSQL**. The goal is to extract meaningful insights about products, discounts, stock, and revenue patterns. This analysis is useful both for **business decision-making** and understanding **customer value trends**.
 
-The project demonstrates how SQL can be leveraged for data-driven decision making in e-commerce.
+## Dataset Description
+The dataset consists of product information with the following columns:
+
+- `sku_id` : Unique identifier for each product
+- `Category` : Product category (e.g., Beverages, Snacks)
+- `name` : Product name
+- `mrp` : Maximum Retail Price (in paise, later converted to rupees)
+- `discountPercent` : Discount percentage on the product
+- `availableQuantity` : Number of items available in stock
+- `discountedSellingPrice` : Price after discount (in paise, later converted to rupees)
+- `weightInGms` : Weight of the product in grams
+- `outOfStock` : Boolean indicating if product is out of stock
+- `quantity` : Number of items sold (used for revenue calculation)
+
+## Tools and Technologies
+- **Database**: PostgreSQL
+- **Querying**: SQL (including JOINs, Aggregations, Window Functions, CASE statements)
+- **Environment**: pgAdmin / psql command-line
+
+## Database Setup
+```sql
+DROP TABLE IF EXISTS zepto;
+
+CREATE TABLE zepto(
+    sku_id SERIAL PRIMARY KEY, 
+    Category VARCHAR(120),
+    name VARCHAR(150) NOT NULL,
+    mrp NUMERIC(8,2),
+    discountPercent NUMERIC(5,2),
+    availableQuantity INTEGER,
+    discountedSellingPrice NUMERIC(8,2),
+    weightInGms INTEGER,
+    outOfStock BOOLEAN,
+    quantity INTEGER
+);
