@@ -38,7 +38,7 @@ CREATE TABLE zepto(
     outOfStock BOOLEAN,
     quantity INTEGER
 );
-
+```
 ## Data Exploration
 ```sql
 -- Count of rows
@@ -66,4 +66,5 @@ FROM zepto
 GROUP BY name
 HAVING COUNT(sku_id) > 1
 ORDER BY COUNT(sku_id) DESC;
+```
 
