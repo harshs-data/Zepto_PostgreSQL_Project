@@ -90,3 +90,82 @@ LIMIT 10;
 ```
 **Helps customers find bargains and businesses understand which products are heavily promoted.**
 
+## 2. High MRP Products Out of Stock
+``` sql
+SELECT DISTINCT name, mrp, category, outofstock
+FROM zepto
+WHERE mrp > 300 AND outofstock = TRUE
+ORDER BY mrp DESC;
+```
+**Shows products that may need restocking due to high demand.**
+
+## 3. Estimated Revenue per Category
+``` sql
+SELECT category, SUM(discountedsellingprice * quantity) AS estimated_revenue
+FROM zepto
+GROUP BY category
+ORDER BY estimated_revenue DESC;
+```
+**Shows products that may need restocking due to high demand.**
+
+## 4. High MRP & Low Discount Products
+``` sql
+SELECT DISTINCT name, category, mrp, discountpercent
+FROM zepto
+WHERE mrp > 500 AND discountpercent < 10
+ORDER BY mrp DESC, discountpercent DESC;
+```
+**Indicates popular products that sell well even with low discounts.**
+
+## 5. Top 5 Categories with Highest Average Discounts
+``` sql
+SELECT category, ROUND(AVG(discountpercent),2) AS avg_discountpercent
+FROM zepto
+GROUP BY category
+ORDER BY avg_discountpercent DESC
+LIMIT 5;
+```
+**Helps identify categories with the largest price cuts.**
+
+## 6. Price per Gram for Products Above 100g
+``` sql
+SELECT DISTINCT name, weightingms, discountedsellingprice,
+ROUND(discountedsellingprice/weightingms,2) AS price_per_gram
+FROM zepto
+WHERE weightingms > 100
+ORDER BY price_per_gram;
+```
+**Shows best value products for bulk buyers.**
+
+## 7. Categorize Products by Weight
+``` sql
+SELECT DISTINCT name, weightingms,
+CASE 
+    WHEN weightingms < 1000 THEN 'Low'
+    WHEN weightingms > 5000 THEN 'Medium'
+    ELSE 'High'
+END AS weight_category
+FROM zepto;
+```
+**Useful for inventory and packaging management.**
+
+## 8. Total Inventory Weight per Category
+``` sql
+SELECT category, SUM(weightingms * availablequantity) AS total_weight
+FROM zepto 
+GROUP BY category
+ORDER BY total_weight;
+```
+**Helps in warehouse planning and handling bulky product categories.**
+
+## Conclusion
+Through this Zepto Data Analysis project, we successfully explored, cleaned, and analyzed a sample e-commerce dataset using PostgreSQL. Key takeaways include:
+
+- Identification of best-value products and high-demand items for better pricing and inventory decisions.
+- Insights into revenue distribution across categories, enabling strategic business planning.
+- Understanding discount patterns and product popularity to optimize marketing and sales strategies.
+- Categorization of products by weight and calculation of inventory metrics to support warehouse management.
+
+Overall, this project demonstrates how SQL-based analysis can provide actionable insights for e-commerce businesses, helping improve decision-making, operational efficiency, and customer satisfaction.
+
+
