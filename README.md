@@ -1,192 +1,134 @@
-Zepto Dataset Analysis Using PostgreSQL
-Project Overview
+drop table if exists zepto;
 
-This project performs a comprehensive data analysis on a dataset of Zepto products using PostgreSQL. The analysis includes data cleaning, exploration, and business insights, such as best-value products, stock status, revenue estimation, discount analysis, and inventory planning.
+create table zepto (
+sku_id SERIAL PRIMARY KEY,
+category VARCHAR(120),
+name VARCHAR(150) NOT NULL,
+mrp NUMERIC(8,2),
+discountPercent NUMERIC(5,2),
+availableQuantity INTEGER,
+discountedSellingPrice NUMERIC(8,2),
+weightInGms INTEGER,
+outOfStock BOOLEAN,	
+quantity INTEGER
+);
 
-The project demonstrates how SQL can be leveraged for data-driven decision making in e-commerce.
+--data exploration
 
-Table of Contents
+--count of rows
+select count(*) from zepto;
 
-Project Overview
-
-Setup Instructions
-
-Database Schema
-
-Data Exploration Queries
-
-Data Cleaning Queries
-
-Business Insight Queries
-
-Insights
-
-Setup Instructions
-
-Install PostgreSQL on your machine.
-
-Create a new database:
-
-CREATE DATABASE zepto_db;
-
-
-Connect to the database:
-
-\c zepto_db
-
-
-Run the SQL script zepto_analysis.sql containing all table creation, data exploration, cleaning, and analysis queries.
-
-Database Schema
-
-Table: zepto
-
-Column Name	Data Type	Description
-sku_id	SERIAL	Primary Key
-Category	VARCHAR(120)	Product Category
-name	VARCHAR(150)	Product Name
-mrp	NUMERIC(8,2)	Maximum Retail Price (in ₹)
-discountPercent	NUMERIC(5,2)	Discount percentage offered
-availableQuantity	INTEGER	Quantity available in stock
-discountedSellingPrice	NUMERIC(8,2)	Selling price after discount (in ₹)
-weightInGms	INTEGER	Weight of the product in grams
-outOfStock	BOOLEAN	Stock availability
-quantity	INTEGER	Number of units sold
-Data Exploration Queries
--- Count of rows
-SELECT COUNT(*) FROM zepto;
-
--- Sample data
-SELECT * FROM zepto LIMIT 10;
-
--- Null values check
+--sample data
 SELECT * FROM zepto
-WHERE name IS NULL OR category IS NULL OR mrp IS NULL
-      OR discountpercent IS NULL OR availablequantity IS NULL
-      OR discountedsellingprice IS NULL OR weightingms IS NULL
-      OR outofstock IS NULL OR quantity IS NULL;
+LIMIT 10;
 
--- Distinct product categories
-SELECT DISTINCT category FROM zepto ORDER BY category;
+--null values
+SELECT * FROM zepto
+WHERE name IS NULL
+OR
+category IS NULL
+OR
+mrp IS NULL
+OR
+discountPercent IS NULL
+OR
+discountedSellingPrice IS NULL
+OR
+weightInGms IS NULL
+OR
+availableQuantity IS NULL
+OR
+outOfStock IS NULL
+OR
+quantity IS NULL;
 
--- Products in stock vs out of stock
-SELECT outofstock, COUNT(sku_id)
-FROM zepto 
-GROUP BY outofstock;
+--different product categories
+SELECT DISTINCT category
+FROM zepto
+ORDER BY category;
 
--- Duplicate product names
+--products in stock vs out of stock
+SELECT outOfStock, COUNT(sku_id)
+FROM zepto
+GROUP BY outOfStock;
+
+--product names present multiple times
 SELECT name, COUNT(sku_id) AS "Number of SKUs"
 FROM zepto
 GROUP BY name
-HAVING COUNT(sku_id) > 1
-ORDER BY COUNT(sku_id) DESC;
+HAVING count(sku_id) > 1
+ORDER BY count(sku_id) DESC;
 
-Data Cleaning Queries
--- Delete products with price = 0
-DELETE FROM zepto WHERE mrp = 0;
+--data cleaning
 
--- Convert paise to rupees
+--products with price = 0
+SELECT * FROM zepto
+WHERE mrp = 0 OR discountedSellingPrice = 0;
+
+DELETE FROM zepto
+WHERE mrp = 0;
+
+--convert paise to rupees
 UPDATE zepto
 SET mrp = mrp / 100.0,
-    discountedsellingprice = discountedsellingprice / 100.0;
+discountedSellingPrice = discountedSellingPrice / 100.0;
 
-SELECT mrp, discountedsellingprice FROM zepto;
+SELECT mrp, discountedSellingPrice FROM zepto;
 
-Business Insight Queries
-1. Top 10 Best-Value Products
-SELECT DISTINCT name, mrp, discountpercent
+--data analysis
+
+-- Q1. Find the top 10 best-value products based on the discount percentage.
+SELECT DISTINCT name, mrp, discountPercent
 FROM zepto
-ORDER BY discountpercent DESC
+ORDER BY discountPercent DESC
 LIMIT 10;
 
+--Q2.What are the Products with High MRP but Out of Stock
 
-Insight: Helps customers find bargains and businesses identify heavily promoted products.
-
-2. High MRP but Out of Stock
-SELECT DISTINCT name, mrp, category, outofstock
+SELECT DISTINCT name,mrp
 FROM zepto
-WHERE mrp > 300 AND outofstock = TRUE
+WHERE outOfStock = TRUE and mrp > 300
 ORDER BY mrp DESC;
 
-
-Insight: Products that need urgent restocking due to high demand.
-
-3. Estimated Revenue per Category
-SELECT category, SUM(discountedsellingprice * quantity) AS estimated_revenue
+--Q3.Calculate Estimated Revenue for each category
+SELECT category,
+SUM(discountedSellingPrice * availableQuantity) AS total_revenue
 FROM zepto
 GROUP BY category
-ORDER BY estimated_revenue DESC;
+ORDER BY total_revenue;
 
-
-Insight: Shows which categories generate the most revenue.
-
-4. High-Priced Products with Low Discount
-SELECT DISTINCT name, category, mrp, discountpercent
+-- Q4. Find all products where MRP is greater than ₹500 and discount is less than 10%.
+SELECT DISTINCT name, mrp, discountPercent
 FROM zepto
-WHERE mrp > 500 AND discountpercent < 10
-ORDER BY mrp DESC, discountpercent DESC;
+WHERE mrp > 500 AND discountPercent < 10
+ORDER BY mrp DESC, discountPercent DESC;
 
-
-Insight: These are popular products with limited discounts.
-
-5. Top 5 Categories by Average Discount
-SELECT category, ROUND(AVG(discountpercent),2) AS avg_discountpercent
+-- Q5. Identify the top 5 categories offering the highest average discount percentage.
+SELECT category,
+ROUND(AVG(discountPercent),2) AS avg_discount
 FROM zepto
 GROUP BY category
-ORDER BY avg_discountpercent DESC
+ORDER BY avg_discount DESC
 LIMIT 5;
 
-
-Insight: Identifies categories where discounts are highest.
-
-6. Price per Gram for Products above 100g
-SELECT DISTINCT name, weightingms, discountedsellingprice,
-ROUND(discountedsellingprice / weightingms, 2) AS price_per_gram
+-- Q6. Find the price per gram for products above 100g and sort by best value.
+SELECT DISTINCT name, weightInGms, discountedSellingPrice,
+ROUND(discountedSellingPrice/weightInGms,2) AS price_per_gram
 FROM zepto
-WHERE weightingms > 100
+WHERE weightInGms >= 100
 ORDER BY price_per_gram;
 
-
-Insight: Helps customers and businesses assess value per gram.
-
-7. Group Products by Weight Category
-SELECT DISTINCT name, weightingms,
-CASE 
-    WHEN weightingms < 1000 THEN 'Low'
-    WHEN weightingms > 5000 THEN 'Medium'
-    ELSE 'High'
-END AS weight_category
+--Q7.Group the products into categories like Low, Medium, Bulk.
+SELECT DISTINCT name, weightInGms,
+CASE WHEN weightInGms < 1000 THEN 'Low'
+	WHEN weightInGms < 5000 THEN 'Medium'
+	ELSE 'Bulk'
+	END AS weight_category
 FROM zepto;
 
-
-Count of Products per Weight Category:
-
-SELECT 
-CASE 
-    WHEN weightingms < 1000 THEN 'Low'
-    WHEN weightingms > 5000 THEN 'Medium'
-    ELSE 'High'
-END AS weight_category,
-COUNT(*) AS count_products
-FROM zepto
-GROUP BY weight_category;
-
-
-Insight: Helps in packaging and inventory planning.
-
-8. Total Inventory Weight per Category
-SELECT category, SUM(weightingms * availablequantity) AS total_weight
+--Q8.What is the Total Inventory Weight Per Category 
+SELECT category,
+SUM(weightInGms * availableQuantity) AS total_weight
 FROM zepto
 GROUP BY category
 ORDER BY total_weight;
-
-
-Insight: Useful for warehouse storage and identifying bulky product categories.
-
-Conclusion & Insights
-
-SQL provides powerful data exploration, cleaning, and business insights capabilities.
-
-Businesses can optimize inventory, discounts, and revenue strategies based on this analysis.
-
-Customers benefit from insights like best-value products and popular items.
