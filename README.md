@@ -3,7 +3,7 @@
 ## Project Overview
 This project involves performing data analysis on a sample Zepto e-commerce dataset using **PostgreSQL**. The goal is to extract meaningful insights about products, discounts, stock, and revenue patterns. This analysis is useful both for **business decision-making** and understanding **customer value trends**.
 
-![zepto_data_analysis]{https://github.com/harshs-data/Zepto_PostgreSQL_Project/blob/main/zepto_data_analysis.png}
+![zepto_data_analysis](https://github.com/harshs-data/Zepto_PostgreSQL_Project/blob/main/zepto_data_analysis.png)
 
 ## Dataset Description
 The dataset consists of product information with the following columns:
