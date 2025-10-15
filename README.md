@@ -38,3 +38,32 @@ CREATE TABLE zepto(
     outOfStock BOOLEAN,
     quantity INTEGER
 );
+
+## Data Exploration
+```sql
+-- Count of rows
+SELECT COUNT(*) FROM zepto;
+
+-- Sample data
+SELECT * FROM zepto LIMIT 10;
+
+-- Check for null values
+SELECT * FROM zepto
+WHERE name IS NULL OR category IS NULL OR mrp IS NULL
+   OR discountpercent IS NULL OR availablequantity IS NULL
+   OR discountedsellingprice IS NULL OR weightingms IS NULL
+   OR outofstock IS NULL OR quantity IS NULL;
+
+-- Distinct product categories
+SELECT DISTINCT category FROM zepto ORDER BY category;
+
+-- Products in stock vs out of stock
+SELECT outofstock, COUNT(sku_id) FROM zepto GROUP BY outofstock;
+
+-- Products appearing multiple times
+SELECT name, COUNT(sku_id) AS "Number of SKUs"
+FROM zepto
+GROUP BY name
+HAVING COUNT(sku_id) > 1
+ORDER BY COUNT(sku_id) DESC;
+
